@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.dto.AuthenticationRequest;
 import com.example.demo.dto.AuthenticationResponse;
 import com.example.demo.dto.UserRegisterDetailsRequest;
+import com.example.demo.exception.IncorrectCredentials;
 import com.example.demo.model.UserEntity;
 import com.example.demo.model.UserProfileEntity;
 import com.example.demo.model.UserRolesEntity;
@@ -78,12 +79,12 @@ public class HomeService {
 		userProfileRepository.save(userRegisterDetails);
 	}
 
-	public ResponseEntity<?> createAuthenticationToken(AuthenticationRequest authenticationRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(AuthenticationRequest authenticationRequest) throws IncorrectCredentials  {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
 					authenticationRequest.getuserName(), authenticationRequest.getPassword()));
 		} catch (BadCredentialsException e) {
-			throw new Exception("Incorrect username or password", e);
+			throw new IncorrectCredentials(e.getMessage());
 		}
 		final UserDetails userDetails = userDetailService.loadUserByUsername(authenticationRequest.getuserName());
 		final String jwt = jwtTokenUtil.generateToken(userDetails);
